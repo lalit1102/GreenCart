@@ -1,10 +1,32 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useAppContext } from '../../context/AppContext'
+import { dummyAddress } from '../../assets/assets'
+
+
 const Cart = () => {
+  const { products, currency, cartItem, removeFromCart, getCartCount, getCartAmount, updateCartItem, navigate, } = useAppContext()
+
+  const [cartArray, setCartArray] = useState([])
   const [showAddress, setShowAddress] = useState(false)
+  const [addresses, setAddresses] = useState(dummyAddress)
+  const [selectedAddress, setSelectedAddress] = useState(dummyAddress[0])
+  const [paymentMethod, setPaymentMethod] = useState("COD")
 
-  const products = [
+  useEffect(() => {
+    const getCart = () => {
+      let tempArray = []
+      for (const item in cartItem) {
+        let product = products.find((product) => product._id === item)
+        if (product) {
+          tempArray.push({ ...product, quantity: cartItem[item] })
+        }
+      }
+      setCartArray(tempArray)
+    }
 
-  ]
+    getCart()
+  }, [cartItem, products])
+
   return (
     <div className="flex flex-col md:flex-row py-16 max-w-6xl w-full px-6 mx-auto">
       <div className='flex-1 max-w-4xl'>
@@ -18,7 +40,7 @@ const Cart = () => {
           <p className="text-center">Action</p>
         </div>
 
-        {products.map((product, index) => (
+        {cartArray.map((product, index) => (
           <div key={index} className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 items-center text-sm md:text-base font-medium pt-3">
             <div className="flex items-center md:gap-6 gap-3">
               <div className="cursor-pointer w-24 h-24 flex items-center justify-center border border-gray-300 rounded overflow-hidden">
