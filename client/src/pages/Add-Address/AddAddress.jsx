@@ -1,10 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { useAppContext } from "../../context/AppContext";
-import toast from "react-hot-toast";
-import { assets } from "../../assets/assets";
+import React from 'react'
+import { assets } from '../../assets/assets'
 
-const AddAddress = () => {
-  const [address, setAddress] = useState({
+const InputField = ({ type, name, placeholder, handleChange, address }) => (
+
+  <input className="w-full px-2 py-2.5 border border-gray-300 rounded outline-none focus:border-green-500 transition"
+    type={type}
+    name={name}
+    placeholder={placeholder}
+    onChange={handleChange}
+    value={address[name]}
+    required />
+
+)
+
+const Addaddress = () => {
+
+  const [address, setAddress] = React.useState({
     firstName: "",
     lastName: "",
     email: "",
@@ -16,171 +27,64 @@ const AddAddress = () => {
     phone: "",
   });
 
-  const { navigate, user } = useAppContext()
+
   const handleChange = (e) => {
-    setAddress({ ...address, [e.target.name]: e.target.value });
+    const { name, value } = e.target
+
+    setAddress((prevAddress) => ({
+      ...prevAddress,
+      [name]: value
+    }))
   };
 
-  const submitHanlder = async (e) => {
-    try {
-      e.preventDefault();
-      const { data } = await axios.post("/api/address/add", { address });
-      console.log("data", data);
-      if (data.success) {
-        toast.success(data.message);
-        navigate("/cart");
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      toast.error(error.message);
-    }
+  const onSubmitHandler = (e) => {
+    e.preventDefault();
+    console.log(address);
   };
-  useEffect(() => {
-    if (!user) {
-      navigate("/cart");
-    }
-  }, []);
+
+
   return (
-    <div className="mt-12 flex flex-col md:flex-row gap-6 p-6 bg-gray-100 rounded-lg shadow-md">
-      {/* Left Side: Address Fields */}
-      <div className="flex-1 bg-white p-6 rounded-lg shadow">
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">
-          Address Details
-        </h2>
-        <form
-          onSubmit={submitHanlder}
-          className="grid grid-cols-1 md:grid-cols-2 gap-4"
-        >
-          <div>
-            <label className="block text-gray-600">First Name</label>
-            <input
-              type="text"
-              name="firstName"
-              value={address.firstName}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-md"
-              required
-            />
-          </div>
+    <div className='mt-16 pb-16 px-4 sm:px-8 xl:px-0'>
+      <p className='text-2xl md:text-3xl text-gray-500'>Add Shipping{' '}
+        <span className='font-semibold text-green-500/30'>Address</span>
+      </p>
+      <div className='flex flex-col-reverse md:flex-row justify-between gap-10 mt-10 md:items-start'>
+        <div className='flex-1 w-full max-w-xl'>
+          <form onSubmit={onSubmitHandler} className='space-y-4 mt-6 text-sm'>
 
-          <div>
-            <label className="block text-gray-600">Last Name</label>
-            <input
-              type="text"
-              name="lastName"
-              value={address.lastName}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-md"
-              required
-            />
-          </div>
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+              <InputField type="text" name="firstName" placeholder="First Name" handleChange={handleChange} address={address} />
+              <InputField type="text" name="lastName" placeholder="Last Name" handleChange={handleChange} address={address} />
+            </div>
 
-          <div className="col-span-2">
-            <label className="block text-gray-600">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={address.email}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-md"
-              required
-            />
-          </div>
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+              <InputField type="email" name="email" placeholder="Email" handleChange={handleChange} address={address} />
+              <InputField type="text" name="street" placeholder="Street" handleChange={handleChange} address={address} />
+            </div>
 
-          <div className="col-span-2">
-            <label className="block text-gray-600">Street</label>
-            <input
-              type="text"
-              name="street"
-              value={address.street}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-md"
-              required
-            />
-          </div>
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+              <InputField type="text" name="city" placeholder="City" handleChange={handleChange} address={address} />
+              <InputField type="text" name="state" placeholder="State" handleChange={handleChange} address={address} />
+            </div>
 
-          <div>
-            <label className="block text-gray-600">City</label>
-            <input
-              type="text"
-              name="city"
-              value={address.city}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-md"
-              required
-            />
-          </div>
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+              <InputField type="text" name="zipCode" placeholder="Zip Code" handleChange={handleChange} address={address} />
+              <InputField type="text" name="country" placeholder="Country" handleChange={handleChange} address={address} />
+            </div>
 
-          <div>
-            <label className="block text-gray-600">State</label>
-            <input
-              type="text"
-              name="state"
-              value={address.state}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-md"
-              required
-            />
-          </div>
+            <InputField type="text" name="phone" placeholder="Phone" handleChange={handleChange} address={address} />
 
-          <div>
-            <label className="block text-gray-600">Zip Code</label>
-            <input
-              type="number"
-              name="zipCode"
-              value={address.zipCode}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-md"
-              required
-            />
-          </div>
 
-          <div>
-            <label className="block text-gray-600">Country</label>
-            <input
-              type="text"
-              name="country"
-              value={address.country}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-md"
-              required
-            />
-          </div>
+            <button type="submit" className='w-full bg-green-500 text-white py-2.5 rounded mt-6 hover:bg-green-600 transition duration-300 cursor-pointer uppercase font-semibold'>save address</button>
 
-          <div className="col-span-2">
-            <label className="block text-gray-600">Phone</label>
-            <input
-              type="number"
-              name="phone"
-              value={address.phone}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-md"
-              required
-            />
-          </div>
-
-          <div className="col-span-2">
-            <button
-              type="submit"
-              className="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded-md"
-            >
-              Save Address
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Right Side: Image */}
-      <div className="flex-1 flex items-center justify-center">
-        <img
-          src={assets.add_address_iamge}
-          alt="Address Illustration"
-          className="w-full max-w-xs rounded-lg shadow-md"
-        />
+          </form>
+        </div>
+        <div className='w-full md:w-1/2 flex justify-center md:justify-end mt-10 md:mt-0'>
+          <img src={assets.add_address_iamge} alt="Add Address" className="w-full max-w-sm md:max-w-md object-contain mb-8 md:mb-0" />
+        </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AddAddress;
+export default Addaddress
