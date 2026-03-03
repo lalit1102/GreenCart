@@ -33,7 +33,7 @@ const SellerLayout = () => {
       </div>
       <div className="flex">
         <div className="md:w-64 w-16 border-r h-[550px] text-base border-gray-300 pt-4 flex flex-col transition-all duration-300">
-          {sidebarLinks.map((item) => (
+          {sidebarLinks.map((item,) => (
             <NavLink to={item.path} key={item.name}
               className={({ isActive }) => `flex items-center py-3 px-4 gap-3 
                             ${isActive ? "border-r-4 md:border-r-[6px] bg-green-500/10 border-green-500 text-green-500"
