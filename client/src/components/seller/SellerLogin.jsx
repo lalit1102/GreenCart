@@ -35,11 +35,10 @@ const SellerLogin = () => {
           <div>
             <label className="block text-sm text-gray-600 mb-1">Email</label>
             <input
-              onChangeCapture={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               type="email"
               value={email}
               placeholder="admin@example.com"
-
               className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition"
               required
             />
@@ -49,7 +48,7 @@ const SellerLogin = () => {
           <div>
             <label className="block text-sm text-gray-600 mb-1">Password</label>
             <input
-              onChangeCapture={(e) => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               type="password"
               value={password}
               placeholder="********"
