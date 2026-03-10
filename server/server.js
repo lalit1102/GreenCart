@@ -4,30 +4,41 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import connectDB from "./configs/db.js";
 import userRouter from "./routes/userRoute.js";
+import sellerRouter from "./routes/sellerRoute.js";
 
 dotenv.config();
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Connect Database
+connectDB();
 
-await connectDB();  
-
-//Allow multiple origins
-const allowedOrigins = ["http://localhost:5173",];
-
+// Allow multiple origins
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174"
+];
 
 // Middleware
-app.use(cors({origin:allowedOrigins,credentials:true}));
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(cookieParser());
 
 // Routes
 app.get("/", (req, res) => {
-    res.send("Server is running");
+  res.send("Server is running");
 });
-app.use("/api/user",userRouter)
+
+app.use("/api/user", userRouter);
+
+app.use("/api/seller",sellerRouter)
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
