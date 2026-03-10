@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import connectDB from "./configs/db.js";
 import userRouter from "./routes/userRoute.js";
 import sellerRouter from "./routes/sellerRoute.js";
+import connectCloudinary from "./configs/cloudinary.js";
+import productRouter from "./routes/productRoutes.js";
 
 dotenv.config();
 
@@ -13,6 +15,8 @@ const PORT = process.env.PORT || 5000;
 
 // Connect Database
 connectDB();
+
+await connectCloudinary()
 
 // Allow multiple origins
 const allowedOrigins = [
@@ -37,6 +41,8 @@ app.get("/", (req, res) => {
 app.use("/api/user", userRouter);
 
 app.use("/api/seller",sellerRouter)
+
+app.use("/api/prodct",productRouter)
 
 // Start server
 app.listen(PORT, () => {
