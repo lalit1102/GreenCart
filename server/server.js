@@ -7,6 +7,8 @@ import userRouter from "./routes/userRoute.js";
 import sellerRouter from "./routes/sellerRoute.js";
 import connectCloudinary from "./configs/cloudinary.js";
 import productRouter from "./routes/productRoutes.js";
+import cartRouter from "./routes/cartRoutes.js";
+import addressRouter from "./routes/addressRoutes.js";
 
 dotenv.config();
 
@@ -43,6 +45,10 @@ app.use("/api/user", userRouter);
 app.use("/api/seller",sellerRouter)
 
 app.use("/api/prodct",productRouter)
+
+app.use("/api/cart",cartRouter)
+
+app.use("api/address",addressRouter)
 
 // Start server
 app.listen(PORT, () => {
