@@ -2,42 +2,56 @@ import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
-  const { user, setUser, setShowUserLogin, navigate, setSearchQuery, searchQuery, getCartCount } = useAppContext();
+  const {
+    user,
+    setUser,
+    setShowUserLogin,
+    navigate,
+    setSearchQuery,
+    searchQuery,
+    getCartCount,
+    axios,
+  } = useAppContext();
 
-  const logOut = () => {
-    setUser(null);
-    navigate("/");
+  const logOut = async () => {
+    try {
+      const { data } = await axios.get("/api/user/logout");
+      if (data.success) {
+        toast.success(data.message);
+        setUser(null);
+        navigate("/");
+      } else {
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
   };
 
   useEffect(() => {
     if (searchQuery.length > 0) {
-      navigate("/products")
+      navigate("/products");
     }
-  }, [searchQuery])
+  }, [searchQuery]);
 
   return (
     <nav className="flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white relative">
-
-
       <NavLink to="/" onClick={() => setOpen(false)}>
         <img src={assets.logo} alt="logo" className="w-32" />
       </NavLink>
 
-
       <div className="hidden lg:flex items-center gap-8">
-
         <NavLink to="/">Home</NavLink>
         <NavLink to="/products">All Products</NavLink>
         <NavLink to="/contact">Contact</NavLink>
 
-
         <div className="flex items-center text-sm gap-2 border border-gray-300 px-3 rounded-full">
           <input
             onChange={(e) => setSearchQuery(e.target.value)}
-
             className="py-1.5 w-full bg-transparent outline-none placeholder-gray-500"
             type="text"
             placeholder="Search products"
@@ -45,14 +59,15 @@ const Navbar = () => {
           <img src={assets.search_icon} alt="search" className="w-4 h-4" />
         </div>
 
-
-        <div className="relative cursor-pointer" onClick={() => navigate("/cart")}>
+        <div
+          className="relative cursor-pointer"
+          onClick={() => navigate("/cart")}
+        >
           <img src={assets.nav_cart_icon} alt="cart" className="w-6" />
           <span className="absolute -top-2 -right-3 w-5 h-5 flex items-center justify-center text-[10px] bg-indigo-500 text-white rounded-full">
             {getCartCount()}
           </span>
         </div>
-
 
         {!user ? (
           <button
@@ -87,30 +102,35 @@ const Navbar = () => {
         )}
       </div>
 
-
       <div className="flex items-center gap-6 sm:hidden">
-        <div className="relative cursor-pointer" onClick={() => navigate("/cart")}>
+        <div
+          className="relative cursor-pointer"
+          onClick={() => navigate("/cart")}
+        >
           <img src={assets.nav_cart_icon} alt="cart" className="w-6" />
           <span className="absolute -top-2 -right-3 w-5 h-5 flex items-center justify-center text-[10px] bg-indigo-500 text-white rounded-full">
             {getCartCount()}
           </span>
         </div>
-        <button
-          onClick={() => setOpen(!open)}
-          aria-label="Menu"
-        >
+        <button onClick={() => setOpen(!open)} aria-label="Menu">
           <img src={assets.menu_icon} alt="menu" className="w-7" />
         </button>
-
       </div>
 
       {open && (
-        <div className="absolute top-16 left-0 w-full bg-white shadow-md py-4
-        flex flex-col items-start gap-3 px-5 text-sm lg:hidden z-40">
-
-          <NavLink to="/" onClick={() => setOpen(false)}>Home</NavLink>
-          <NavLink to="/products" onClick={() => setOpen(false)}>All Products</NavLink>
-          <NavLink to="/contact" onClick={() => setOpen(false)}>Contact</NavLink>
+        <div
+          className="absolute top-16 left-0 w-full bg-white shadow-md py-4
+        flex flex-col items-start gap-3 px-5 text-sm lg:hidden z-40"
+        >
+          <NavLink to="/" onClick={() => setOpen(false)}>
+            Home
+          </NavLink>
+          <NavLink to="/products" onClick={() => setOpen(false)}>
+            All Products
+          </NavLink>
+          <NavLink to="/contact" onClick={() => setOpen(false)}>
+            Contact
+          </NavLink>
 
           {user && (
             <NavLink to="/my-orders" onClick={() => setOpen(false)}>
