@@ -84,7 +84,7 @@ const fetchMyOrders = useCallback(async () => {
                   <div className="text-xs md:text-sm space-y-1">
                     <p>Quantity: {item.quantity || "1"}</p>
                     <p>Status: {order.status}</p>
-                    <p>Date: {new Date(order.createAt).toDateString()}</p>
+                    <p>Date: {order.createdAt ? new Date(order.createdAt).toDateString() : "N/A"}</p>
                   </div>
 
                   {/* Price */}
