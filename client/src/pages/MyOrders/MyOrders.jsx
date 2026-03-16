@@ -1,19 +1,33 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useAppContext } from '../../context/useAppContext';
-import { dummyOrders } from '../../assets/assets';
+
 
 const MyOrders = () => {
 
   const [myorders, setMyOrders] = useState([]);
-  const { currency } = useAppContext();
+  const { currency,axios,user } = useAppContext();
 
-  const fetchMyOrders = async () => {
-    setMyOrders(dummyOrders)
-  }
+const fetchMyOrders = useCallback(async () => {
+    try {
+
+      const { data } = await axios.get("/api/order/user");
+
+      if (data.success) {
+        setMyOrders(data.orders);
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
+  }, [axios]);
 
   useEffect(() => {
-    fetchMyOrders();
-  }, [])
+    if (user) {
+      fetchMyOrders();
+    }
+  }, [user, fetchMyOrders]);
+
+  
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
