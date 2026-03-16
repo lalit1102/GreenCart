@@ -173,7 +173,7 @@ useEffect(() => {
 }, [cartItem]);
 
 
-  const value = { navigate, user, setUser, isSeller, setIsSeller, showUserLogin, setShowUserLogin, products, currency, addToCart, updateCartItem, removeFromCart, cartItem, searchQuery, setSearchQuery, getCartCount, getCartAmount,axios,fetchProducts }
+  const value = { navigate, user, setUser, isSeller, setIsSeller, showUserLogin, setShowUserLogin, products, currency, addToCart, updateCartItem, removeFromCart, cartItem, searchQuery, setSearchQuery, getCartCount, getCartAmount,axios,fetchProducts,setCartItem}
   return (
     <AppContext.Provider value={value}>
       {children}

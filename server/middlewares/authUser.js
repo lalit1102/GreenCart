@@ -22,7 +22,9 @@ const authUser = (req,res,next)=>{
             })
         }
 
-        req.userId = tokenDecode.id
+req.userId = tokenDecode.id
+    req.body = req.body || {}
+    req.body.userId = tokenDecode.id
 
         next()
 

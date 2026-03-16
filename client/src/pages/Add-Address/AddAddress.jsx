@@ -1,5 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { assets } from '../../assets/assets'
+import { useAppContext } from '../../context/AppContext'
+import toast from 'react-hot-toast'
+import { useState } from 'react'
 
 const InputField = ({ type, name, placeholder, handleChange, address }) => (
 
@@ -15,18 +18,19 @@ const InputField = ({ type, name, placeholder, handleChange, address }) => (
 
 const Addaddress = () => {
 
-  const [address, setAddress] = React.useState({
+  const { axios, navigate, user } = useAppContext()
+
+  const [address, setAddress] = useState({
     firstName: "",
     lastName: "",
     email: "",
     street: "",
     city: "",
     state: "",
-    zipCode: "",
+    zipcode: "",
     country: "",
     phone: "",
   });
-
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -37,11 +41,31 @@ const Addaddress = () => {
     }))
   };
 
-  const onSubmitHandler = (e) => {
-    e.preventDefault();
-    console.log(address);
-  };
+  const onSubmitHandler = async (e) => {
+  e.preventDefault();
 
+  try {
+    const { data } = await axios.post("/api/address/add", {
+      address,
+      userId: user?._id,
+    });
+
+    if (data.success) {
+      toast.success(data.message);
+      navigate("/cart");
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
+
+ useEffect(() => {
+  if (!user) {
+    navigate("/cart");
+  }
+}, [user]);
 
   return (
     <div className='mt-16 pb-16 px-4 sm:px-8 xl:px-0'>
@@ -68,7 +92,7 @@ const Addaddress = () => {
             </div>
 
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-              <InputField type="text" name="zipCode" placeholder="Zip Code" handleChange={handleChange} address={address} />
+              <InputField type="text" name="zipcode" placeholder="Zip Code" handleChange={handleChange} address={address} />
               <InputField type="text" name="country" placeholder="Country" handleChange={handleChange} address={address} />
             </div>
 

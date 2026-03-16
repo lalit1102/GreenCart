@@ -1,148 +1,371 @@
-import React, { useEffect, useState } from 'react'
-import { useAppContext } from '../../context/AppContext'
-import { assets, dummyAddress } from '../../assets/assets'
-
+import React, { useEffect, useState } from "react";
+import { useAppContext } from "../../context/AppContext";
+import { assets } from "../../assets/assets";
+import toast from "react-hot-toast";
 
 const Cart = () => {
-  const { products, currency, cartItem, removeFromCart, getCartCount, getCartAmount, updateCartItem, navigate, } = useAppContext()
 
-  const [cartArray, setCartArray] = useState([])
-  const [showAddress, setShowAddress] = useState(false)
-  const [addresses, setAddresses] = useState(dummyAddress)
-  const [selectedAddress, setSelectedAddress] = useState(dummyAddress[0])
-  const [paymentMethod, setPaymentMethod] = useState("COD")
+  const {
+    products,
+    currency,
+    cartItem,
+    removeFromCart,
+    getCartCount,
+    getCartAmount,
+    updateCartItem,
+    navigate,
+    axios,
+    user,
+    setCartItem
+  } = useAppContext();
+
+  const [cartArray, setCartArray] = useState([]);
+  const [showAddress, setShowAddress] = useState(false);
+  const [addresses, setAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState("COD");
 
 
-  const placeOrder = () => {
+ 
+ 
 
-  }
 
-  useEffect(() => {
-    const getCart = () => {
-      let tempArray = []
-      for (const item in cartItem) {
-        let product = products.find((product) => product._id === item)
-        if (product) {
-          tempArray.push({ ...product, quantity: cartItem[item] })
-        }
+  // get cart items
+  const getCart = () => {
+
+    let tempArray = [];
+
+    for (const key in cartItem) {
+
+      const product = products.find((item) => item._id === key);
+
+      if (product) {
+        tempArray.push({
+          ...product,
+          quantity: cartItem[key]
+        });
       }
-      setCartArray(tempArray)
+
     }
 
-    getCart()
-  }, [cartItem, products])
+    setCartArray(tempArray);
 
-  return products.length > 0 && cartItem ? (
+  };
+
+
+  // get user address
+  const getUserAddress = async () => {
+
+    try {
+
+      const { data } = await axios.get("/api/address/get");
+
+      if (data.success) {
+
+        setAddresses(data.addresses);
+
+        if (data.addresses.length > 0) {
+          setSelectedAddress(data.addresses[0]);
+        }
+
+      } else {
+        toast.error(data.message);
+      }
+
+    } catch (error) {
+      toast.error(error.message);
+    }
+
+  };
+
+const placeOrder = async () => {
+
+  try {
+
+    if(!user){
+      return toast.error("Please login first")
+    }
+
+    if(!selectedAddress){
+      return toast.error("Please select address")
+    }
+
+    if(cartArray.length === 0){
+      return toast.error("Cart is empty")
+    }
+
+    if(paymentMethod === "COD"){
+
+      const {data} = await axios.post("/api/order/cod",{
+        userId:user?._id,
+        items:cartArray.map((item)=>({
+          product:item._id,
+          quantity:item.quantity
+        })),
+        address:selectedAddress._id
+      })
+
+      if(data.success){
+        toast.success(data.message)
+        setCartItem({})
+        navigate("/my-orders")
+      }else{
+        toast.error(data.message)
+      }
+
+    }
+
+  } catch (error) {
+    toast.error(error.message)
+  }
+
+}
+
+  useEffect(() => {
+
+    if (products.length > 0 && cartItem) {
+      getCart();
+      
+    }
+
+  }, [products, cartItem]);
+
+
+  useEffect(() => {
+
+    if (user) {
+      getUserAddress();
+    }
+
+  }, [user]);
+
+
+  if (products.length === 0) return null;
+
+
+  return (
     <div className="flex flex-col md:flex-row mt-16">
-      <div className='flex-1 max-w-4xl'>
+
+      {/* LEFT SIDE */}
+      <div className="flex-1 max-w-4xl">
+
         <h1 className="text-3xl font-medium mb-6">
-          Shopping Cart <span className="text-sm text-green-500/80">{getCartCount()} Items</span>
+          Shopping Cart
+          <span className="text-sm text-green-500/80">
+            {" "}({getCartCount()} Items)
+          </span>
         </h1>
 
-        <div className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 text-base font-medium pb-3">
-          <p className="text-left">Product Details</p>
+        <div className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 pb-3">
+          <p>Product Details</p>
           <p className="text-center">Subtotal</p>
           <p className="text-center">Action</p>
         </div>
 
+
         {cartArray.map((product, index) => (
-          <div key={index} className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 items-center text-sm md:text-base font-medium pt-3">
-            <div className="flex items-center md:gap-6 gap-3">
-              <div onClick={() => {
-                navigate(`/products/${product.category.toLowerCase()}/${product._id}`); scrollTo(0, 0)
-              }} className="cursor-pointer w-24 h-24 flex items-center justify-center border border-gray-300 rounded overflow-hidden">
-                <img className="max-w-full h-full object-cover" src={product.image[0]} alt={product.name} />
-              </div>
+
+          <div
+            key={index}
+            className="grid grid-cols-[2fr_1fr_1fr] items-center pt-3"
+          >
+
+            <div className="flex items-center gap-4">
+
+              <img
+                src={product.image[0]}
+                className="w-20 h-20 object-cover border"
+                alt={product.name}
+              />
+
               <div>
-                <p className="hidden md:block font-semibold">{product.name}</p>
-                <div className="font-normal text-gray-500/70">
-                  <p>Weight: <span>{product.weight || "N/A"}</span></p>
-                  <div className='flex items-center'>
-                    <p>Qty:</p>
-                    <select onChange={(e) => updateCartItem(product._id, Number(e.target.value))} value={cartItem[product._id]} className='outline-none'>
-                      {Array(cartItem[product._id] > 9 ? cartItem[product._id] : 9).fill('').map((_, index) => (
-                        <option key={index} value={index + 1}>{index + 1}</option>
+
+                <p className="font-semibold">{product.name}</p>
+
+                <div className="flex items-center gap-2">
+
+                  <p>Qty:</p>
+
+                  <select
+                    value={product.quantity}
+                    onChange={(e) =>
+                      updateCartItem(product._id, Number(e.target.value))
+                    }
+                  >
+
+                    {Array(10)
+                      .fill("")
+                      .map((_, i) => (
+                        <option key={i} value={i + 1}>
+                          {i + 1}
+                        </option>
                       ))}
-                    </select>
-                  </div>
+
+                  </select>
+
                 </div>
+
               </div>
+
             </div>
-            <p className="text-center">{currency}{product.offerPrice * product.quantity}</p>
-            <button onClick={() => removeFromCart(product._id)} className="cursor-pointer mx-auto">
-              <img src={assets.remove_icon} alt="remove" className='inline-block w-6 h-6' />
+
+
+            <p className="text-center">
+              {currency}
+              {product.offerPrice * product.quantity}
+            </p>
+
+
+            <button
+              onClick={() => removeFromCart(product._id)}
+              className="mx-auto"
+            >
+
+              <img
+                src={assets.remove_icon}
+                className="w-6"
+                alt="remove"
+              />
+
             </button>
-          </div>)
-        )}
 
-        <button onClick={() => { navigate('/products'); scrollTo(0, 0) }} className="group cursor-pointer flex items-center mt-8 gap-2 text-green-500/80 font-medium">
-          <img src={assets.arrow_right_icon_colored} alt="arrow" className='group-hover:translate-x-1 transition-all ' />
-          Continue Shopping
-        </button>
-
-      </div>
-
-      <div className="max-w-[360px] w-full bg-gray-100/40 p-5 max-md:mt-16 border border-gray-300/70">
-        <h2 className="text-xl md:text-xl font-medium">Order Summary</h2>
-        <hr className="border-gray-300 my-5" />
-
-        <div className="mb-6">
-          <p className="text-sm font-medium uppercase">Delivery Address</p>
-          <div className="relative flex justify-between items-start mt-2">
-            <p className="text-gray-500">{selectedAddress ? `${selectedAddress.street}  , ${selectedAddress.city}, ${selectedAddress.state}, ${selectedAddress.country}` : "No address found"}</p>
-            <button onClick={() => setShowAddress(!showAddress)} className="text-green-500/80 hover:underline cursor-pointer">
-              Change
-            </button>
-            {showAddress && (
-              <div className="absolute top-12 py-1 bg-white border border-gray-300 text-sm w-full">
-                {
-                  addresses.map((address, index) => (
-                    <p key={index} onClick={() => { setShowAddress(false); setAddresses(addresses) }} className="text-gray-500 p-2 hover:bg-gray-100">
-                      {address.street}, {address.city}, {address.state}, {address.country}
-                    </p>
-                  ))
-                }
-
-                <p onClick={() => navigate("/add-address")} className="text-green-500/80 text-center cursor-pointer p-2 hover:bg-green-500/80/10">
-                  Add address
-                </p>
-              </div>
-            )}
           </div>
 
-          <p className="text-sm font-medium uppercase mt-6">Payment Method</p>
+        ))}
 
-          <select onChange={(e) => setPaymentMethod(e.target.value)} className="w-full border border-gray-300 bg-white px-3 py-2 mt-2 outline-none">
-            <option value="COD">Cash On Delivery</option>
-            <option value="Online">Online Payment</option>
-          </select>
-        </div>
 
-        <hr className="border-gray-300" />
-
-        <div className="text-gray-500 mt-4 space-y-2">
-          <p className="flex justify-between">
-            <span>Price</span><span>{currency}{getCartAmount()}</span>
-          </p>
-          <p className="flex justify-between">
-            <span>Shipping Fee</span><span className="text-green-600">Free</span>
-          </p>
-          <p className="flex justify-between">
-            <span>Tax (2%)</span><span>{currency}{getCartAmount() * 0.02}</span>
-          </p>
-          <p className="flex justify-between text-lg font-medium mt-3">
-            <span>Total Amount:</span><span>{currency}{getCartAmount() + getCartAmount() * 0.02}</span>
-          </p>
-        </div>
-
-        <button onClick={() => { placeOrder() }} className="w-full py-3 mt-6 cursor-pointer bg-green-400/80 text-white font-medium hover:bg-green-500/70 transition">
-          {
-            paymentMethod === "COD" ? "Place Order" : "Proceed to Payment"
-          }
+        <button
+          onClick={() => navigate("/products")}
+          className="mt-8 text-green-500"
+        >
+          Continue Shopping →
         </button>
-      </div>
-    </div>
-  ) : null
-}
 
-export default Cart
+      </div>
+
+
+      {/* RIGHT SIDE */}
+
+      <div className="max-w-[360px] w-full bg-gray-100 p-5 border">
+
+        <h2 className="text-xl font-medium">Order Summary</h2>
+
+        <hr className="my-5" />
+
+        <p className="text-sm font-medium">Delivery Address</p>
+
+        <div className="flex justify-between mt-2">
+
+          <p className="text-gray-500">
+
+            {selectedAddress
+              ? `${selectedAddress.street}, ${selectedAddress.city}`
+              : "No address found"}
+
+          </p>
+
+          <button
+            onClick={() => setShowAddress(!showAddress)}
+            className="text-green-500"
+          >
+            Change
+          </button>
+
+        </div>
+
+
+        {showAddress && (
+
+          <div className="bg-white border mt-2">
+
+            {addresses.map((address, index) => (
+
+              <p
+                key={index}
+                onClick={() => {
+                  setSelectedAddress(address);
+                  setShowAddress(false);
+                }}
+                className="p-2 hover:bg-gray-100 cursor-pointer"
+              >
+
+                {address.street}, {address.city}
+
+              </p>
+
+            ))}
+
+            <p
+              onClick={() => navigate("/add-address")}
+              className="text-green-500 text-center p-2 cursor-pointer"
+            >
+              Add address
+            </p>
+
+          </div>
+
+        )}
+
+
+        <p className="text-sm font-medium mt-6">Payment Method</p>
+
+        <select
+          onChange={(e) => setPaymentMethod(e.target.value)}
+          className="w-full border px-3 py-2 mt-2"
+        >
+
+          <option value="COD">Cash On Delivery</option>
+          <option value="Online">Online Payment</option>
+
+        </select>
+
+
+        <hr className="my-5" />
+
+
+        <div className="space-y-2">
+
+          <p className="flex justify-between">
+            <span>Price</span>
+            <span>{currency}{getCartAmount()}</span>
+          </p>
+
+          <p className="flex justify-between">
+            <span>Shipping</span>
+            <span className="text-green-600">Free</span>
+          </p>
+
+          <p className="flex justify-between">
+            <span>Tax (2%)</span>
+            <span>{currency}{getCartAmount() * 0.02}</span>
+          </p>
+
+          <p className="flex justify-between font-medium">
+            <span>Total</span>
+            <span>
+              {currency}
+              {getCartAmount() + getCartAmount() * 0.02}
+            </span>
+          </p>
+
+        </div>
+
+
+        <button
+          onClick={placeOrder}
+          className="w-full py-3 mt-6 bg-green-500 text-white"
+        >
+
+          {paymentMethod === "COD"
+            ? "Place Order"
+            : "Proceed to Payment"}
+
+        </button>
+
+      </div>
+
+    </div>
+  );
+};
+
+export default Cart;

@@ -24,7 +24,8 @@ await connectCloudinary()
 // Allow multiple origins
 const allowedOrigins = [
   "http://localhost:5173",
-  "http://localhost:5174"
+  "http://localhost:5174",
+  "http://localhost:5175"
 ];
 
 // Middleware
@@ -49,7 +50,7 @@ app.use("/api/product",productRouter)
 
 app.use("/api/cart",cartRouter)
 
-app.use("api/address",addressRouter)
+app.use("/api/address",addressRouter)
 
 app.use("/api/order",orderRouter)
 
