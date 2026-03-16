@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useAppContext } from "../../context/AppContext";
+import React, { useCallback, useEffect, useState } from "react";
+import { useAppContext } from "../../context/useAppContext";
 import { assets } from "../../assets/assets";
 import toast from "react-hot-toast";
 
@@ -31,54 +31,40 @@ const Cart = () => {
 
 
   // get cart items
-  const getCart = () => {
-
+  const getCart = useCallback(() => {
     let tempArray = [];
 
     for (const key in cartItem) {
-
       const product = products.find((item) => item._id === key);
-
       if (product) {
         tempArray.push({
           ...product,
-          quantity: cartItem[key]
+          quantity: cartItem[key],
         });
       }
-
     }
 
     setCartArray(tempArray);
-
-  };
-
+  }, [products, cartItem]);
 
   // get user address
-  const getUserAddress = async () => {
-
+  const getUserAddress = useCallback(async () => {
     try {
-
       const { data } = await axios.get("/api/address/get");
-
       if (data.success) {
-
         setAddresses(data.addresses);
-
         if (data.addresses.length > 0) {
           setSelectedAddress(data.addresses[0]);
         }
-
       } else {
         toast.error(data.message);
       }
-
     } catch (error) {
       toast.error(error.message);
     }
+  }, [axios]);
 
-  };
-
-const placeOrder = async () => {
+  const placeOrder = async () => {
 
   try {
 
@@ -122,22 +108,16 @@ const placeOrder = async () => {
 }
 
   useEffect(() => {
-
     if (products.length > 0 && cartItem) {
       getCart();
-      
     }
-
-  }, [products, cartItem]);
-
+  }, [products, cartItem, getCart]);
 
   useEffect(() => {
-
     if (user) {
       getUserAddress();
     }
-
-  }, [user]);
+  }, [user, getUserAddress]);
 
 
   if (products.length === 0) return null;
@@ -246,7 +226,7 @@ const placeOrder = async () => {
 
       {/* RIGHT SIDE */}
 
-      <div className="max-w-[360px] w-full bg-gray-100 p-5 border">
+      <div className="max-w-90 w-full bg-gray-100 p-5 border">
 
         <h2 className="text-xl font-medium">Order Summary</h2>
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAppContext } from "../../context/AppContext";
+import { useAppContext } from "../../context/useAppContext";
 import { Link, useParams } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import ProductCard from "../../components/Best Seller/ProductCard";
@@ -41,8 +41,8 @@ const ProductDetails = () => {
         <div className="flex flex-col-reverse sm:flex-row gap-3 sm:w-1/2">
           <div className="flex sm:flex-col overflow-x-auto sm:overflow-y-scroll justify-between sm:justify-normal sm:w-[18.7%] w-full">
             {product.image.map((image, index) => (
-              <div key={index} onClick={() => setThumbnail(image)} className="border max-w-24 sm:w-full w-[24%] flex-shrink-0 border-gray-500/30 rounded cursor-pointer sm:mb-3" >
-                <img src={image} alt={`Thumbnail ${index + 1}`} className="w-full sm:mb-3 flex-shrink-0 cursor-pointer" />
+              <div key={index} onClick={() => setThumbnail(image)} className="border max-w-24 sm:w-full w-[24%] shrink-0 border-gray-500/30 rounded cursor-pointer sm:mb-3" >
+                <img src={image} alt={`Thumbnail ${index + 1}`} className="w-full sm:mb-3 shrink-0 cursor-pointer" />
               </div>
             ))}
           </div>

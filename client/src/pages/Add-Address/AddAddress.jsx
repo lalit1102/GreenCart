@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { assets } from '../../assets/assets'
-import { useAppContext } from '../../context/AppContext'
+import { useAppContext } from '../../context/useAppContext'
 import toast from 'react-hot-toast'
-import { useState } from 'react'
 
 const InputField = ({ type, name, placeholder, handleChange, address }) => (
 
@@ -65,7 +64,7 @@ const Addaddress = () => {
   if (!user) {
     navigate("/cart");
   }
-}, [user]);
+}, [user, navigate]);
 
   return (
     <div className='mt-16 pb-16 px-4 sm:px-8 xl:px-0'>

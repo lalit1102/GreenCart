@@ -1,6 +1,6 @@
 import React from "react";
 import { assets } from "../../assets/assets";
-import { useAppContext } from "../../context/AppContext";
+import { useAppContext } from "../../context/useAppContext";
 
 const ProductCard = ({ product }) => {
   const { currency, addToCart, removeFromCart, cartItem, navigate } = useAppContext();

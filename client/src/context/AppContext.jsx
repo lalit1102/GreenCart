@@ -1,25 +1,20 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AppContext } from "./AppContextSource";
 
 import toast from "react-hot-toast";
 import axios from "axios";
 
 axios.defaults.withCredentials = true;
-
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 
-export const AppContext = createContext()
-
-
 export const AppContextProvider = ({ children }) => {
-
   const currency = import.meta.env.VITE_CURRENCY;
+  const navigate = useNavigate();
 
-  const navigate = useNavigate()
-
-  const [user, setUser] = useState(null)
-  const [isSeller, setIsSeller] = useState(false)
-  const [showUserLogin, setShowUserLogin] = useState(false)
+  const [user, setUser] = useState(null);
+  const [isSeller, setIsSeller] = useState(false);
+  const [showUserLogin, setShowUserLogin] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState({})
 
@@ -142,25 +137,23 @@ export const AppContextProvider = ({ children }) => {
 
 
   useEffect(() => {
-    fetchUser( )
-    fetchSeller()
-    fetchProducts()
-    
-  }, [])
+    fetchUser();
+    fetchSeller();
+    fetchProducts();
+  }, []);
 
-
-  // update database cart item
-
+// update database cart item
 useEffect(() => {
-
   const updateCart = async () => {
     try {
-      const { data } = await axios.post("/api/cart/update", { cartItem });
+      const { data } = await axios.post("/api/cart/update", {
+        cartItem,
+        userId: user?._id,
+      });
 
       if (!data.success) {
         toast.error(data.message);
       }
-
     } catch (error) {
       toast.error(error.message);
     }
@@ -169,18 +162,33 @@ useEffect(() => {
   if (user) {
     updateCart();
   }
+}, [cartItem, user]);
 
-}, [cartItem]);
 
+  const value = {
+    navigate,
+    user,
+    setUser,
+    isSeller,
+    setIsSeller,
+    showUserLogin,
+    setShowUserLogin,
+    products,
+    currency,
+    addToCart,
+    updateCartItem,
+    removeFromCart,
+    cartItem,
+    searchQuery,
+    setSearchQuery,
+    getCartCount,
+    getCartAmount,
+    axios,
+    fetchProducts,
+    setCartItem,
+  };
 
-  const value = { navigate, user, setUser, isSeller, setIsSeller, showUserLogin, setShowUserLogin, products, currency, addToCart, updateCartItem, removeFromCart, cartItem, searchQuery, setSearchQuery, getCartCount, getCartAmount,axios,fetchProducts,setCartItem}
   return (
-    <AppContext.Provider value={value}>
-      {children}
-    </AppContext.Provider>
-  )
-}
-
-export const useAppContext = () => {
-  return useContext(AppContext)
-}
+    <AppContext.Provider value={value}>{children}</AppContext.Provider>
+  );
+};
