@@ -10,6 +10,7 @@ import productRouter from "./routes/productRoutes.js";
 import cartRouter from "./routes/cartRoutes.js";
 import addressRouter from "./routes/addressRoutes.js";
 import orderRouter from "./routes/orderRoutes.js";
+import { stripeWebhooks } from "./controllers/orderController.js";
 
 dotenv.config();
 
@@ -27,6 +28,9 @@ const allowedOrigins = [
   "http://localhost:5174",
   "http://localhost:5175"
 ];
+
+
+app.post("/stripe",express.raw({type: "application/json"}),stripeWebhooks)
 
 // Middleware
 app.use(cors({
